@@ -47,6 +47,7 @@ static NSString * const RottenTomatoesAPIKey = @"3jc296gretaxvsuvvn6pvgdk";
     self.title = @"Movies";
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
+    self.tableView.rowHeight = [MovieCell rowHeight];
     UINib *movieCellNib = [UINib nibWithNibName:@"MovieCell" bundle:nil];
     [self.tableView registerNib:movieCellNib forCellReuseIdentifier:@"MovieCell"];
 
@@ -85,8 +86,13 @@ static NSString * const RottenTomatoesAPIKey = @"3jc296gretaxvsuvvn6pvgdk";
 - (void)setErrorMessage:(NSString *)errorMessage {
     _errorMessage = errorMessage;
     static CGFloat originalHeight = 0;
-    if (originalHeight == 0) {
-        originalHeight = self.errorViewHeight.constant;
+    
+    NSAssert(self.errorViewHeight || errorMessage == nil, @"Unable to calculate height");
+    if (self.errorViewHeight) {
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            originalHeight = self.errorViewHeight.constant;
+        });
     }
     
     self.errorViewHeight.constant = errorMessage != nil ? originalHeight : 0;
@@ -108,10 +114,6 @@ static NSString * const RottenTomatoesAPIKey = @"3jc296gretaxvsuvvn6pvgdk";
 }
 
 #pragma mark - UITableViewDelegate
-
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return [MovieCell rowHeight];
-}
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     Movie *movie = self.movies[indexPath.row];
