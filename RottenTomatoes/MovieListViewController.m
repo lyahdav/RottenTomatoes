@@ -86,13 +86,8 @@ static NSString * const RottenTomatoesAPIKey = @"3jc296gretaxvsuvvn6pvgdk";
 - (void)setErrorMessage:(NSString *)errorMessage {
     _errorMessage = errorMessage;
     static CGFloat originalHeight = 0;
-    
-    NSAssert(self.errorViewHeight || errorMessage == nil, @"Unable to calculate height");
-    if (self.errorViewHeight) {
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            originalHeight = self.errorViewHeight.constant;
-        });
+    if (originalHeight == 0) {
+        originalHeight = self.errorViewHeight.constant;
     }
     
     self.errorViewHeight.constant = errorMessage != nil ? originalHeight : 0;
